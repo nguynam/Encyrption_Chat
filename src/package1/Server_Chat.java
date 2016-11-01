@@ -27,12 +27,13 @@ public class Server_Chat {
 		while (on) {
 			// Accept new connections.
 			// Create a new serverHandler instance for each connection.
-			Socket clientSocket = listenSocket.accept();
+
 			// create new socket/port for client.
+			Socket clientSocket = listenSocket.accept();
 			Runnable r = new ServerHandler(clientSocket);
 			Thread t = new Thread(r);
-			t.start();
 			// Start new thread
+			t.start();
 		}
 
 	}
