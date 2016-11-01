@@ -29,6 +29,8 @@ class cryptotest {
 		SecureRandom r = new SecureRandom();
 		byte ivbytes[] = new byte[16];
 		r.nextBytes(ivbytes);
+
+		// Set a new one for every encrypt
 		IvParameterSpec iv = new IvParameterSpec(ivbytes);
 		String plaintext = "This is a test string to encrypt";
 		byte ciphertext[] = c.encrypt(plaintext.getBytes(), s, iv);
