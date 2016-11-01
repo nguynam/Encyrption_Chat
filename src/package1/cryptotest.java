@@ -61,7 +61,7 @@ class cryptotest {
 		}
 	}
 
-	// Symmetric decryption
+	// Symmetric Decryption
 	public byte[] decrypt(byte[] ciphertext, SecretKey secKey, IvParameterSpec iv) {
 		try {
 			Cipher c = Cipher.getInstance("AES/CBC/PKCS5Padding");
