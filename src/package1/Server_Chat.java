@@ -5,9 +5,23 @@ import java.io.DataOutputStream;
 import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 public class Server_Chat {
+	public static ConcurrentHashMap<Integer, Socket> clientMap = new ConcurrentHashMap<>();
+
+	public static ConcurrentHashMap<Integer, Socket> getClientMap() {
+		return clientMap;
+	}
+
+	public static void setClientMap(ConcurrentHashMap<Integer, Socket> clientMap) {
+		Server_Chat.clientMap = clientMap;
+	}
+
 	public static void main(String args[]) throws Exception {
+		
 		boolean on = true;
 		BufferedReader inFromUser = new BufferedReader(new InputStreamReader(System.in));
 		// Setup reader for user input (in terminal).
@@ -30,7 +44,7 @@ public class Server_Chat {
 
 			// create new socket/port for client.
 			Socket clientSocket = listenSocket.accept();
-			Runnable r = new ServerHandler(clientSocket);
+			Runnable r = new ServerHandler(clientSocket, clientMap);
 			Thread t = new Thread(r);
 			// Start new thread
 			t.start();
@@ -41,14 +55,20 @@ public class Server_Chat {
 
 class ServerHandler implements Runnable {
 	Socket clientSocket;
-
+	ConcurrentHashMap<Integer, Socket> clientMap = new ConcurrentHashMap<>();
 	// Directory to scan for files.
 	final String DIRECTORY = "src/files";
 
-	ServerHandler(Socket incomingSocket) {
+	ServerHandler(Socket incomingSocket, ConcurrentHashMap<Integer, Socket> incomingMap) {
 		clientSocket = incomingSocket;
+		clientMap = incomingMap;
+	}
+	
+	private void getCurrentMap(){
+		clientMap = Server_Chat.getClientMap();
 	}
 
+	
 	@Override
 	public void run() {
 		try {
@@ -74,3 +94,4 @@ class ServerHandler implements Runnable {
 
 	}
 }
+

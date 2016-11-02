@@ -43,6 +43,11 @@ public class GUI extends Application{
 					displayPopup("Could not connect to specified server");
 					return;
 				}
+				else{
+					//Connection successful switch to new view
+					
+				}
+				
 			}
 			
 			
