@@ -65,12 +65,21 @@ class ServerHandler implements Runnable {
 
 			// Client now connected
 			System.out.println("Client connected.");
-			BufferedReader inFromClient = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-			DataOutputStream outToClient = new DataOutputStream(clientSocket.getOutputStream());
 			while (on) {
-				String requestedFile = inFromClient.readLine();
+				BufferedReader inFromClient = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+				String message = inFromClient.readLine();
+				String sendMessage;
+				int id = Integer.parseInt(message.substring(0,1));;
+
+				//Set target client to send message to
+				Socket targetSocket = threadMap.get(id);
+				DataOutputStream outToClient = new DataOutputStream(targetSocket.getOutputStream());
+				//Set the sending message and send to client
+				sendMessage = message.substring(3, message.length());
+				outToClient.writeBytes(sendMessage);
+
 				// Capture requested file name.
-				if (requestedFile.equals("Exit")) {
+				if (sendMessage.equals("Kick")) {
 					on = false;
 					System.out.println("Client Disconnected.");
 					clientSocket.close();
