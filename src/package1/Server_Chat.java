@@ -5,10 +5,19 @@ import java.io.DataOutputStream;
 import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.concurrent.ConcurrentHashMap;
+
 
 public class Server_Chat {
+	public static ConcurrentHashMap <Integer, Socket> idMap = new ConcurrentHashMap<>();
+
+	public static ConcurrentHashMap<Integer, Socket> getIdMap(){
+		return idMap;
+	}
+
 	public static void main(String args[]) throws Exception {
 		boolean on = true;
+
 		BufferedReader inFromUser = new BufferedReader(new InputStreamReader(System.in));
 		// Setup reader for user input (in terminal).
 		ServerSocket listenSocket = new ServerSocket();
@@ -25,15 +34,17 @@ public class Server_Chat {
 
 		}
 		while (on) {
-			// Accept new connections.
-			// Create a new serverHandler instance for each connection.
+			int id = 1;
 
 			// create new socket/port for client.
 			Socket clientSocket = listenSocket.accept();
-			Runnable r = new ServerHandler(clientSocket);
+			idMap.put(id,clientSocket);
+
+			ServerHandler r = new ServerHandler(clientSocket);
 			Thread t = new Thread(r);
 			// Start new thread
 			t.start();
+			id++;
 		}
 
 	}
@@ -41,9 +52,7 @@ public class Server_Chat {
 
 class ServerHandler implements Runnable {
 	Socket clientSocket;
-
-	// Directory to scan for files.
-	final String DIRECTORY = "src/files";
+	ConcurrentHashMap <Integer, Socket> threadMap = new ConcurrentHashMap<>();
 
 	ServerHandler(Socket incomingSocket) {
 		clientSocket = incomingSocket;
@@ -72,5 +81,8 @@ class ServerHandler implements Runnable {
 			System.out.println(e);
 		}
 
+	}
+	private ConcurrentHashMap<Integer, Socket> getMap(){
+		return this.threadMap = Server_Chat.idMap;
 	}
 }

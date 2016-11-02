@@ -2,6 +2,7 @@ package package1;
 
 
 import javafx.application.Application;
+
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -16,6 +17,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+
 public class GUI extends Application{
 
 	@Override
@@ -68,7 +70,6 @@ public class GUI extends Application{
 		alert.setTitle("Error");
 		alert.setHeaderText(null);
 		alert.setContentText(message);
-
 		alert.showAndWait();
 	}
 	public static void main(String[] args){
