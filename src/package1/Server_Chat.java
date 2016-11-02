@@ -19,14 +19,14 @@ public class Server_Chat {
 	public static void setClientMap(ConcurrentHashMap<Integer, Socket> clientMap) {
 		Server_Chat.clientMap = clientMap;
 	}
-
+	
 	public static void main(String args[]) throws Exception {
 		
 		boolean on = true;
 		BufferedReader inFromUser = new BufferedReader(new InputStreamReader(System.in));
 		// Setup reader for user input (in terminal).
 		ServerSocket listenSocket = new ServerSocket();
-
+		int clientId = 0;
 		// Continue prompting user for new port if binding is unsuccessful
 		while (listenSocket.isBound() == false) {
 			try {
@@ -41,13 +41,14 @@ public class Server_Chat {
 		while (on) {
 			// Accept new connections.
 			// Create a new serverHandler instance for each connection.
-
 			// create new socket/port for client.
 			Socket clientSocket = listenSocket.accept();
+			clientMap.put(clientId, clientSocket);
 			Runnable r = new ServerHandler(clientSocket, clientMap);
 			Thread t = new Thread(r);
 			// Start new thread
 			t.start();
+			clientId++;
 		}
 
 	}

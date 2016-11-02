@@ -43,10 +43,10 @@ public class Client_Chat {
 			Socket clientSocket = new Socket(ServerIp, port);
 			outToServer = new DataOutputStream(clientSocket.getOutputStream());
 			bis = new BufferedInputStream(clientSocket.getInputStream());
+			return true;
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			return false;
 		}
-		return false;
 	}
 }
