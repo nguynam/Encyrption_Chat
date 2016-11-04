@@ -7,7 +7,6 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.ConcurrentHashMap;
 
-
 public class Server_Chat {
     public static ConcurrentHashMap<Integer, Socket> clientMap = new ConcurrentHashMap<>();
 
