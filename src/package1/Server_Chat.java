@@ -34,6 +34,7 @@ public class Server_Chat {
 
 		}
 		while (on) {
+			//Set new ID for every new client connected
 			int id = 1;
 
 			// create new socket/port for client.
