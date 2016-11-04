@@ -52,6 +52,7 @@ public class GUI extends Application{
 				}
 				else{
 					//Connection successful switch to new view
+					client.run();
 					
 					GridPane chatGridGui = new GridPane();
 					chatGridGui.setAlignment(Pos.CENTER);

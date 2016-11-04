@@ -63,8 +63,7 @@ class ServerHandler implements Runnable {
     private void getCurrentMap() {
         clientMap = Server_Chat.getClientMap();
     }
-
-
+    
     @Override
     public void run() {
         try {
@@ -77,7 +76,6 @@ class ServerHandler implements Runnable {
                 String message = inFromClient.readLine();
                 String sendMessage;
                 int id = Integer.parseInt(message.substring(0, 1));
-                ;
 
                 //Set target client to send message to
                 Socket targetSocket = clientMap.get(id);
