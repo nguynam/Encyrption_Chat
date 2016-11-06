@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.CharBuffer;
@@ -73,15 +74,10 @@ class ServerHandler implements Runnable {
 		// Client now connected
 		System.out.println("Client connected.");
 		while (on) {
-			BufferedReader inFromClient = null;
 			try {
+				BufferedReader inFromClient = null;
 				inFromClient = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			String message = null;
-			try {
+				String message = null;
 				while ((message = inFromClient.readLine()) != null) {
 					System.out.println("Recieved: " + message);
 					String sendMessage;
@@ -89,10 +85,10 @@ class ServerHandler implements Runnable {
 
 					// Set target client to send message to
 					Socket targetSocket = clientMap.get(id);
-					DataOutputStream outToClient = new DataOutputStream(targetSocket.getOutputStream());
+					PrintWriter outToClient = new PrintWriter(clientSocket.getOutputStream(),true);
 					// Set the sending message and send to client
 					sendMessage = message.substring(2, message.length());
-					outToClient.writeBytes(sendMessage);
+					outToClient.println(sendMessage);
 
 					if (sendMessage.equals("Kick")) {
 						on = false;
@@ -100,10 +96,10 @@ class ServerHandler implements Runnable {
 						clientSocket.close();
 						break;
 					}
+
 				}
-			} catch (NumberFormatException | IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			} catch (Exception e) {
+				System.out.println(e);
 			}
 
 		}
