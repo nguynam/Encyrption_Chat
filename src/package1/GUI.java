@@ -66,6 +66,22 @@ public class GUI extends Application{
 					sendBtn.setText("Send");
 					TextField inputText = new TextField();
 					inputText.setPromptText("Enter a message: ");
+<<<<<<< Updated upstream
+=======
+					sendBtn.setOnAction(new EventHandler<ActionEvent>() {
+
+						@Override
+						public void handle(ActionEvent event) {
+							String sending = inputText.getText();
+							String messageSubstring = sending.substring(2, sending.length());
+							client.sendMessage(messageSubstring);
+							String chatBoxMessage = "Sent: " + messageSubstring + "\n";
+							chatBox.appendText(chatBoxMessage);
+							inputText.clear();
+						}
+
+					});
+>>>>>>> Stashed changes
 					Text idText = new Text();
 					idText.setText("Client ID's");
 					Text chatText = new Text();
