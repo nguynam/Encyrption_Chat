@@ -75,7 +75,7 @@ public class GUI extends Application {
                     Button sendBtn = new Button();
                     sendBtn.setText("Send");
                     TextField inputText = new TextField();
-                    inputText.setPromptText("Enter a message");
+                    inputText.setPromptText("Enter a message: ");
                     sendBtn.setOnAction(new EventHandler<ActionEvent>() {
 
                         @Override
