@@ -53,7 +53,6 @@ public class Server_Chat {
 }
 
 class ServerHandler implements Runnable {
-<<<<<<< HEAD
     Socket clientSocket;
     ConcurrentHashMap<Integer, Socket> clientMap = new ConcurrentHashMap<>();
     // Directory to scan for files.
@@ -109,61 +108,4 @@ class ServerHandler implements Runnable {
     private ConcurrentHashMap<Integer, Socket> getMap() {
         return this.clientMap = Server_Chat.clientMap;
     }
-=======
-	Socket clientSocket;
-	ConcurrentHashMap<Integer, Socket> clientMap = new ConcurrentHashMap<>();
-	// Directory to scan for files.
-
-	ServerHandler(Socket incomingSocket, ConcurrentHashMap<Integer, Socket> incomingMap) {
-		clientSocket = incomingSocket;
-		clientMap = incomingMap;
-	}
-
-	private void getCurrentMap() {
-		clientMap = Server_Chat.getClientMap();
-	}
-
-	@Override
-	public void run() {
-
-		boolean on = true;
-
-		// Client now connected
-		System.out.println("Client connected.");
-		while (on) {
-			try {
-				BufferedReader inFromClient = null;
-				inFromClient = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-				String message = null;
-				while ((message = inFromClient.readLine()) != null) {
-					System.out.println("Recieved: " + message);
-					String sendMessage;
-					int id = Integer.parseInt(message.substring(0, 1));
-
-					// Set target client to send message to
-					Socket targetSocket = clientMap.get(id);
-					PrintWriter outToClient = new PrintWriter(targetSocket.getOutputStream(),true);
-					// Set the sending message and send to client
-					sendMessage = message.substring(2, message.length());
-					outToClient.println(sendMessage);
-
-					if (sendMessage.equals("Kick")) {
-						on = false;
-						System.out.println("Client Disconnected.");
-						clientSocket.close();
-						break;
-					}
-
-				}
-			} catch (Exception e) {
-				System.out.println(e);
-			}
-
-		}
-	}
-
-	private ConcurrentHashMap<Integer, Socket> getMap() {
-		return this.clientMap = Server_Chat.clientMap;
-	}
->>>>>>> e0df9b892fb854c3d2177cce6f67bf0ced903ed1
 }

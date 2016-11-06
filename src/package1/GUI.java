@@ -18,9 +18,9 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 public class GUI extends Application {
-    String chatText;
     TextArea chatBox;
     Client_Chat client = new Client_Chat();
+
     @Override
     public void start(final Stage primaryStage) throws Exception {
         // TODO Auto-generated method stub
@@ -58,7 +58,8 @@ public class GUI extends Application {
                 if (!connectionSuccess) {
                     displayPopup("Could not connect to specified server");
                     return;
-                } else {
+                }
+                else {
                     // Connection successful switch to new view
                     GridPane chatGridGui = new GridPane();
                     chatGridGui.setAlignment(Pos.CENTER);
@@ -100,8 +101,8 @@ public class GUI extends Application {
                     chatGridGui.add(chatBox, 1, 1, 2, 1);
                     chatGridGui.add(inputText, 1, 2);
                     chatGridGui.add(sendBtn, 2, 2);
-                    Scene chatScene = new Scene(chatGridGui, 400, 300);
-                    idBox.setPrefWidth(50);
+                    Scene chatScene = new Scene(chatGridGui, 500, 300);
+                    idBox.setPrefWidth(150);
                     primaryStage.setScene(chatScene);
                     // Disabling since thread to listen for new message is below
                     // client.run();
