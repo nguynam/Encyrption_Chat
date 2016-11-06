@@ -66,8 +66,6 @@ public class GUI extends Application{
 					sendBtn.setText("Send");
 					TextField inputText = new TextField();
 					inputText.setPromptText("Enter a message: ");
-<<<<<<< Updated upstream
-=======
 					sendBtn.setOnAction(new EventHandler<ActionEvent>() {
 
 						@Override
@@ -81,7 +79,6 @@ public class GUI extends Application{
 						}
 
 					});
->>>>>>> Stashed changes
 					Text idText = new Text();
 					idText.setText("Client ID's");
 					Text chatText = new Text();
