@@ -24,7 +24,6 @@ public class GUI extends Application {
 	@Override
 	public void start(final Stage primaryStage) throws Exception {
 		// TODO Auto-generated method stub
-		//final Client_Chat client = new Client_Chat();
 
 		final TextField ipField = new TextField();
 		ipField.setPromptText("Server IP:");
@@ -59,8 +58,7 @@ public class GUI extends Application {
 				if (!connectionSuccess) {
 					displayPopup("Could not connect to specified server");
 					return;
-				}
-				else {
+				} else {
 					// Connection successful switch to new view
 					GridPane chatGridGui = new GridPane();
 					chatGridGui.setAlignment(Pos.CENTER);
@@ -107,7 +105,6 @@ public class GUI extends Application {
 					primaryStage.setScene(chatScene);
 					// Disabling since thread to listen for new message is below
 					// client.run();
-					//CompletableFuture<Object> createListeners = CompletableFuture.supplyAsync(() -> );
 					createAsyncListener();
 				}
 			}
@@ -121,16 +118,16 @@ public class GUI extends Application {
 
 	}
 
-	private void createAsyncListener(){
+	private void createAsyncListener() {
 		CompletableFuture<Void> listen = CompletableFuture.supplyAsync(client::getLine)
-				.thenApply(message -> updateChat(message))
-				.thenRun(() -> {
+				.thenApply(message -> updateChat(message)).thenRun(() -> {
 					createAsyncListener();
 				});
 	}
+
 	private Object updateChat(String newMessage) {
-		chatText = chatText + "\n" + newMessage;
-		chatBox.setText(chatText);
+		String message = "Received: " + newMessage + '\n';
+		chatBox.appendText(message);
 		return null;
 	}
 

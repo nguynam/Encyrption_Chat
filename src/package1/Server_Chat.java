@@ -85,7 +85,7 @@ class ServerHandler implements Runnable {
 
 					// Set target client to send message to
 					Socket targetSocket = clientMap.get(id);
-					PrintWriter outToClient = new PrintWriter(clientSocket.getOutputStream(),true);
+					PrintWriter outToClient = new PrintWriter(targetSocket.getOutputStream(),true);
 					// Set the sending message and send to client
 					sendMessage = message.substring(2, message.length());
 					outToClient.println(sendMessage);
