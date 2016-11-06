@@ -117,7 +117,7 @@ class cryptotest {
 		}
 	}
 
-	// Read prviate key from file
+	// Read private key from file
 	public void setPrivateKey(String filename) {
 		try {
 			File f = new File(filename);

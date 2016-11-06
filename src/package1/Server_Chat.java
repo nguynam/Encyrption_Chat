@@ -2,9 +2,11 @@ package package1;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.CharBuffer;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class Server_Chat {
@@ -65,35 +67,46 @@ class ServerHandler implements Runnable {
 
     @Override
     public void run() {
-        try {
-            boolean on = true;
 
-            // Client now connected
-            System.out.println("Client connected.");
-            while (on) {
-                BufferedReader inFromClient = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-                String message = inFromClient.readLine();
-                String sendMessage;
-                int id = Integer.parseInt(message.substring(0, 1));
+        boolean on = true;
 
-                //Set target client to send message to
-                Socket targetSocket = clientMap.get(id);
-                DataOutputStream outToClient = new DataOutputStream(targetSocket.getOutputStream());
-                //Set the sending message and send to client
-                sendMessage = message.substring(2, message.length());
-                outToClient.writeBytes(sendMessage);
-
-                if (sendMessage.equals("Kick")) {
-                    on = false;
-                    System.out.println("Client Disconnected.");
-                    clientSocket.close();
-                    break;
-                }
+        // Client now connected
+        System.out.println("Client connected.");
+        while (on) {
+            BufferedReader inFromClient = null;
+            try {
+                inFromClient = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
             }
-        } catch (Exception e) {
-            System.out.println(e);
-        }
+            String message = null;
+            try {
+                while ((message = inFromClient.readLine()) != null) {
+                    System.out.println("Recieved: " + message);
+                    String sendMessage;
+                    int id = Integer.parseInt(message.substring(0, 1));
+                    System.out.println(id);
+                    // Set target client to send message to
+                    Socket targetSocket = clientMap.get(id);
+                    DataOutputStream outToClient = new DataOutputStream(targetSocket.getOutputStream());
+                    // Set the sending message and send to client
+                    sendMessage = message.substring(2, message.length());
+                    outToClient.writeBytes(sendMessage);
 
+                    if (sendMessage.equals("Kick")) {
+                        on = false;
+                        System.out.println("Client Disconnected.");
+                        clientSocket.close();
+                        break;
+                    }
+                }
+            } catch (NumberFormatException | IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+
+        }
     }
 
     private ConcurrentHashMap<Integer, Socket> getMap() {

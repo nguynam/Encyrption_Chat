@@ -1,5 +1,7 @@
 package package1;
 
+import java.util.concurrent.CompletableFuture;
+
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -16,6 +18,8 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 public class GUI extends Application {
+	String chatText;
+	TextArea chatBox;
 
 	@Override
 	public void start(final Stage primaryStage) throws Exception {
@@ -32,6 +36,16 @@ public class GUI extends Application {
 		Text portText = new Text();
 		portText.setText("Port");
 		connectBtn.setText("Connect");
+		GridPane grid = new GridPane();
+		grid.setAlignment(Pos.CENTER);
+		grid.setHgap(10);
+		grid.setVgap(10);
+		grid.setPadding(new Insets(25, 25, 25, 25));
+		grid.add(ipText, 0, 0);
+		grid.add(ipField, 0, 1);
+		grid.add(portText, 0, 2);
+		grid.add(portField, 0, 3);
+		grid.add(connectBtn, 0, 4);
 		connectBtn.setOnAction(new EventHandler<ActionEvent>() {
 
 			@Override
@@ -48,14 +62,16 @@ public class GUI extends Application {
 				}
 				else {
 					// Connection successful switch to new view
-
 					GridPane chatGridGui = new GridPane();
 					chatGridGui.setAlignment(Pos.CENTER);
 					chatGridGui.setHgap(10);
 					chatGridGui.setVgap(10);
 					chatGridGui.setPadding(new Insets(25, 25, 25, 25));
 					TextArea idBox = new TextArea();
-					TextArea chatBox = new TextArea();
+					idBox.setEditable(false);
+					idBox.appendText("0 = Broadcast\n");
+					chatBox = new TextArea();
+					chatBox.setEditable(false);
 					Button refreshBtn = new Button();
 					refreshBtn.setText("Refresh ID's");
 					Button sendBtn = new Button();
@@ -68,7 +84,7 @@ public class GUI extends Application {
 						public void handle(ActionEvent event) {
 							String sending = inputText.getText();
 							String messageSubstring = sending.substring(2, sending.length());
-							client.sendMessage(messageSubstring);
+							client.sendMessage(sending);
 							String chatBoxMessage = "Sent: " + messageSubstring + "\n";
 							chatBox.appendText(chatBoxMessage);
 							inputText.clear();
@@ -89,27 +105,26 @@ public class GUI extends Application {
 					Scene chatScene = new Scene(chatGridGui, 400, 300);
 					idBox.setPrefWidth(50);
 					primaryStage.setScene(chatScene);
+					// Disabling since thread to listen for new message is below
+					// client.run();
+					CompletableFuture<Object> listen = CompletableFuture.supplyAsync(client::getLine)
+							.thenApply(message -> updateChat(message));
 				}
-
 			}
 
 		});
-		GridPane grid = new GridPane();
-		grid.setAlignment(Pos.CENTER);
-		grid.setHgap(10);
-		grid.setVgap(10);
-		grid.setPadding(new Insets(25, 25, 25, 25));
-		grid.add(ipText, 0, 0);
-		grid.add(ipField, 0, 1);
-		grid.add(portText, 0, 2);
-		grid.add(portField, 0, 3);
-		grid.add(connectBtn, 0, 4);
-
+		// Set initial scene
 		Scene loginScene = new Scene(grid, 300, 250);
 		primaryStage.setTitle("Secure Chat");
 		primaryStage.setScene(loginScene);
 		primaryStage.show();
 
+	}
+
+	private Object updateChat(String newMessage) {
+		chatText = chatText + "\n" + newMessage;
+		chatBox.setText(chatText);
+		return null;
 	}
 
 	private void displayPopup(String message) {

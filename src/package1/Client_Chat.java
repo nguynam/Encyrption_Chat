@@ -2,9 +2,12 @@ package package1;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -16,7 +19,7 @@ import javafx.scene.Scene;
 import javafx.scene.layout.GridPane;
 
 public class Client_Chat {
-	DataOutputStream outToServer;
+	PrintWriter outToServer;
 	//BufferedInputStream bis;
 	BufferedReader inFromServer;
 	Socket clientSocket;
@@ -36,7 +39,8 @@ public class Client_Chat {
 		}
 		try {
 			clientSocket = new Socket(ServerIp, port);
-			outToServer = new DataOutputStream(clientSocket.getOutputStream());
+			//outToServer = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
+			outToServer = new PrintWriter(clientSocket.getOutputStream(),true);
 			inFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 			//outToServer.close();
 			return true;
@@ -47,13 +51,10 @@ public class Client_Chat {
 	}
 
 	public Boolean sendMessage(String toSend){
-		try {
-			outToServer.write(toSend.getBytes());
-			return true;
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			return false;
-		}
+		outToServer.println(toSend);
+		//outToServer.newLine();
+		//outToServer.flush();
+		return true;
 	}
 
 	public String getLine(){
