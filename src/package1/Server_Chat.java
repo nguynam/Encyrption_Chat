@@ -21,7 +21,7 @@ public class Server_Chat {
         BufferedReader inFromUser = new BufferedReader(new InputStreamReader(System.in));
         // Setup reader for user input (in terminal).
         ServerSocket listenSocket = new ServerSocket();
-        int clientId = 0;
+        int clientId = 1;
         // Continue prompting user for new port if binding is unsuccessful
         while (listenSocket.isBound() == false) {
             try {
@@ -53,7 +53,6 @@ class ServerHandler implements Runnable {
     Socket clientSocket;
     ConcurrentHashMap<Integer, Socket> clientMap = new ConcurrentHashMap<>();
     // Directory to scan for files.
-    final String DIRECTORY = "src/files";
 
     ServerHandler(Socket incomingSocket, ConcurrentHashMap<Integer, Socket> incomingMap) {
         clientSocket = incomingSocket;
@@ -63,7 +62,7 @@ class ServerHandler implements Runnable {
     private void getCurrentMap() {
         clientMap = Server_Chat.getClientMap();
     }
-    
+
     @Override
     public void run() {
         try {
@@ -81,10 +80,9 @@ class ServerHandler implements Runnable {
                 Socket targetSocket = clientMap.get(id);
                 DataOutputStream outToClient = new DataOutputStream(targetSocket.getOutputStream());
                 //Set the sending message and send to client
-                sendMessage = message.substring(3, message.length());
+                sendMessage = message.substring(2, message.length());
                 outToClient.writeBytes(sendMessage);
 
-                // Capture requested file name.
                 if (sendMessage.equals("Kick")) {
                     on = false;
                     System.out.println("Client Disconnected.");
@@ -102,4 +100,3 @@ class ServerHandler implements Runnable {
         return this.clientMap = Server_Chat.clientMap;
     }
 }
-
