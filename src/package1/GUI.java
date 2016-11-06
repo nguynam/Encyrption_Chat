@@ -20,11 +20,10 @@ import javafx.stage.Stage;
 public class GUI extends Application {
     String chatText;
     TextArea chatBox;
-
+    Client_Chat client = new Client_Chat();
     @Override
     public void start(final Stage primaryStage) throws Exception {
         // TODO Auto-generated method stub
-        final Client_Chat client = new Client_Chat();
 
         final TextField ipField = new TextField();
         ipField.setPromptText("Server IP:");
@@ -76,7 +75,7 @@ public class GUI extends Application {
                     Button sendBtn = new Button();
                     sendBtn.setText("Send");
                     TextField inputText = new TextField();
-                    inputText.setPromptText("Enter a message: ");
+                    inputText.setPromptText("Enter a message");
                     sendBtn.setOnAction(new EventHandler<ActionEvent>() {
 
                         @Override
@@ -106,8 +105,7 @@ public class GUI extends Application {
                     primaryStage.setScene(chatScene);
                     // Disabling since thread to listen for new message is below
                     // client.run();
-                    CompletableFuture<Object> listen = CompletableFuture.supplyAsync(client::getLine)
-                            .thenApply(message -> updateChat(message));
+                    createAsyncListener();
                 }
             }
 
@@ -118,6 +116,13 @@ public class GUI extends Application {
         primaryStage.setScene(loginScene);
         primaryStage.show();
 
+    }
+
+    private void createAsyncListener() {
+        CompletableFuture<Void> listen = CompletableFuture.supplyAsync(client::getLine)
+                .thenApply(message -> updateChat(message)).thenRun(() -> {
+                    createAsyncListener();
+                });
     }
 
     private Object updateChat(String newMessage) {
