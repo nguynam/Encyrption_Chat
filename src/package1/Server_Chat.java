@@ -46,7 +46,7 @@ public class Server_Chat {
             // Create a new serverHandler instance for each connection.
             // create new socket/port for client.
             Socket clientSocket = listenSocket.accept();
-            Runnable r = new ServerHandler(clientSocket, clientMap, threadMap);
+            Runnable r = new ServerHandler(clientSocket);
             Thread t = new Thread(r);
             clientMap.put(clientId, clientSocket);
             threadMap.put(clientId, t);
@@ -61,17 +61,9 @@ public class Server_Chat {
 
 class ServerHandler implements Runnable {
     Socket clientSocket;
-    ConcurrentHashMap<Integer, Socket> clientMap = new ConcurrentHashMap<>();
-    ConcurrentHashMap<Integer, Thread> threadMap = new ConcurrentHashMap<>();
 
-    ServerHandler(Socket incomingSocket, ConcurrentHashMap<Integer, Socket> incomingMap, ConcurrentHashMap<Integer, Thread> incomingThread) {
+    ServerHandler(Socket incomingSocket) {
         clientSocket = incomingSocket;
-        clientMap = incomingMap;
-        threadMap = incomingThread;
-    }
-
-    private void getCurrentMap() {
-        clientMap = Server_Chat.getClientMap();
     }
 
     @Override
@@ -87,13 +79,12 @@ class ServerHandler implements Runnable {
                 inFromClient = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
                 String message = null;
                 while ((message = inFromClient.readLine()) != null) {
-                    System.out.println("Received: " + message);
                     String sendMessage;
                     int id = Integer.parseInt(message.substring(0, 1));
 
                     if (id == 0) {
-                        for (int i = 1; i <= clientMap.size(); i++) {
-                            Socket currentSocket = clientMap.get(i);
+                        for (int i = 1; i <= Server_Chat.clientMap.size(); i++) {
+                            Socket currentSocket = Server_Chat.clientMap.get(i);
                             PrintWriter outToClient = new PrintWriter(currentSocket.getOutputStream(), true);
                             outToClient.println(message.substring(2, message.length()));
                         }
@@ -101,7 +92,7 @@ class ServerHandler implements Runnable {
                     }
                     if(id == 9){
                     	//Send ID's
-                    	KeySetView<Integer, Socket> keySet = clientMap.keySet();
+                    	KeySetView<Integer, Socket> keySet = Server_Chat.clientMap.keySet();
                     	StringJoiner joiner = new StringJoiner(",");
                         PrintWriter outToClient = new PrintWriter(clientSocket.getOutputStream(),true);
                     	for(Integer name : keySet){
@@ -112,18 +103,15 @@ class ServerHandler implements Runnable {
                     }
 
                     // Set target client to send message to
-                    Socket targetSocket = clientMap.get(id);
+                    Socket targetSocket = Server_Chat.clientMap.get(id);
                     PrintWriter outToClient = new PrintWriter(targetSocket.getOutputStream(), true);
                     // Set the sending message and send to client
                     sendMessage = message.substring(2, message.length());
 
                     if (sendMessage.equals("Kick")) {
-                        //on = false;
                         System.out.println("Client " + id + " Disconnected.");
                         Thread closingThread = Server_Chat.threadMap.get(id);
                         closingThread.interrupt();
-                        threadMap.remove(id);
-                        clientMap.remove(id);
                         Server_Chat.clientMap.remove(id);
                         Server_Chat.threadMap.remove(id);
                         continue;
@@ -135,9 +123,5 @@ class ServerHandler implements Runnable {
             }
 
         }
-    }
-
-    private ConcurrentHashMap<Integer, Socket> getMap() {
-        return this.clientMap = Server_Chat.clientMap;
     }
 }
