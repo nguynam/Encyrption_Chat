@@ -8,7 +8,10 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.CharBuffer;
+import java.util.List;
+import java.util.StringJoiner;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentHashMap.KeySetView;
 
 public class Server_Chat {
     public static ConcurrentHashMap<Integer, Socket> clientMap = new ConcurrentHashMap<>();
@@ -90,6 +93,17 @@ class ServerHandler implements Runnable {
                             outToClient.println(message.substring(2, message.length()));
                         }
                         continue;
+                    }
+                    if(id == 9){
+                    	//Send ID's
+                    	KeySetView<Integer, Socket> keySet = clientMap.keySet();
+                    	StringJoiner joiner = new StringJoiner(",");
+                        PrintWriter outToClient = new PrintWriter(clientSocket.getOutputStream(),true);
+                    	for(Integer name : keySet){
+                    		joiner.add(name.toString());
+                    	}
+                        outToClient.println("9" + joiner.toString());
+                    	continue;
                     }
 
                     // Set target client to send message to
