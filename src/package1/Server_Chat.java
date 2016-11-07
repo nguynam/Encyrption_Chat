@@ -79,9 +79,18 @@ class ServerHandler implements Runnable {
                 inFromClient = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
                 String message = null;
                 while ((message = inFromClient.readLine()) != null) {
-                    System.out.println("Recieved: " + message);
+                    System.out.println("Received: " + message);
                     String sendMessage;
                     int id = Integer.parseInt(message.substring(0, 1));
+
+                    if(id == 0){
+                        for (int i = 1; i <= clientMap.size(); i++){
+                            Socket currentSocket = clientMap.get(i);
+                            PrintWriter outToClient = new PrintWriter(currentSocket.getOutputStream(),true);
+                            outToClient.println(message.substring(2, message.length()));
+                        }
+                        continue;
+                    }
 
                     // Set target client to send message to
                     Socket targetSocket = clientMap.get(id);
