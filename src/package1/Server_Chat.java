@@ -111,6 +111,7 @@ class ServerHandler implements Runnable {
                     if (sendMessage.equals("Kick")) {
                         System.out.println("Client " + id + " Disconnected.");
                         Thread closingThread = Server_Chat.threadMap.get(id);
+                        Server_Chat.clientMap.get(id).close();
                         closingThread.interrupt();
                         Server_Chat.clientMap.remove(id);
                         Server_Chat.threadMap.remove(id);
@@ -119,7 +120,7 @@ class ServerHandler implements Runnable {
                     outToClient.println(sendMessage);
                 }
             } catch (Exception e) {
-                System.out.println(e);
+                //
             }
 
         }
