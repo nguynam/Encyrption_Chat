@@ -101,6 +101,24 @@ class ServerHandler implements Runnable {
                         outToClient.println("9" + joiner.toString());
                     	continue;
                     }
+                    if(id == 8){
+                    	//Client is exiting
+                    	Integer targetId = null;
+                    	for(Integer x : Server_Chat.clientMap.keySet()){
+                    		if(Server_Chat.clientMap.get(x).equals(clientSocket)){
+                    			//Found user id;
+                    			targetId = x;
+                    			break;
+                    		}
+                    	}
+                    	System.out.println("Client " + targetId.toString() + " Disconnected.");
+                        //Thread closingThread = Server_Chat.threadMap.get(targetId);
+                        Server_Chat.clientMap.remove(targetId);
+                        Server_Chat.threadMap.remove(targetId);
+                        //Server_Chat.clientMap.get(targetId).close();
+                        Thread.currentThread().interrupt();
+                        return;
+                    }
 
                     // Set target client to send message to
                     Socket targetSocket = Server_Chat.clientMap.get(id);
@@ -120,7 +138,6 @@ class ServerHandler implements Runnable {
                     outToClient.println(sendMessage);
                 }
             } catch (Exception e) {
-                //
             }
 
         }

@@ -23,12 +23,17 @@ public class Client_Chat {
 	//BufferedInputStream bis;
 	BufferedReader inFromServer;
 	Socket clientSocket;
+	boolean on = true;
+	
+	public void closeSocket() throws IOException{
+		clientSocket.close();
+	}
+	public boolean isOn() {
+		return on;
+	}
 
-	public void run(){
-		boolean on = true;
-		//BufferedReader inFromUser = new BufferedReader(new InputStreamReader(System.in));
-		// Setup input and output streams
-
+	public void setOn(boolean on) {
+		this.on = on;
 	}
 
 	public Boolean connect (String ServerIp, String ServerPort){
@@ -60,7 +65,7 @@ public class Client_Chat {
 	public String getLine(){
 		String currentText;
 		try {
-			while((currentText = inFromServer.readLine()) != null){
+			while((currentText = inFromServer.readLine()) != null && on){
 				//Display received text.
 				return currentText;
 			}

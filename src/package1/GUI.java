@@ -1,5 +1,6 @@
 package package1;
 
+import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 
 import javafx.application.Application;
@@ -16,6 +17,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 
 public class GUI extends Application {
 	TextArea chatBox;
@@ -25,7 +27,16 @@ public class GUI extends Application {
 	@Override
 	public void start(final Stage primaryStage) throws Exception {
 		// TODO Auto-generated method stub
+		primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>(){
 
+			@Override
+			public void handle(WindowEvent event) {
+				//handle gui exit.
+				client.sendMessage("8");
+				client.setOn(false);
+			}
+			
+		});
 		final TextField ipField = new TextField();
 		ipField.setPromptText("Server IP:");
 		final TextField portField = new TextField();
