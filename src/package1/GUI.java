@@ -32,7 +32,7 @@ public class GUI extends Application {
 			@Override
 			public void handle(WindowEvent event) {
 				//handle gui exit.
-				client.sendMessage("8");
+				client.sendMessage("8",true);
 				client.setOn(false);
 			}
 			
@@ -89,7 +89,7 @@ public class GUI extends Application {
 						@Override
 						public void handle(ActionEvent event) {
 							// Send request for ID's
-							client.sendMessage("9");
+							client.sendMessage("9",true);
 						}
 
 					});
@@ -103,7 +103,7 @@ public class GUI extends Application {
 						public void handle(ActionEvent event) {
 							String sending = inputText.getText();
 							String messageSubstring = sending.substring(2, sending.length());
-							client.sendMessage(sending);
+							client.sendMessage(sending, true);
 							String chatBoxMessage = "Sent: " + messageSubstring + "\n";
 							chatBox.appendText(chatBoxMessage);
 							inputText.clear();
@@ -126,7 +126,7 @@ public class GUI extends Application {
 					primaryStage.setScene(chatScene);
 					createAsyncListener();
 					//Update Client List on start
-					client.sendMessage("9");
+					client.sendMessage("9", true);
 				}
 			}
 

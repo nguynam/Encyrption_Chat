@@ -8,10 +8,17 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.CharBuffer;
+import java.util.Arrays;
 import java.util.List;
 import java.util.StringJoiner;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentHashMap.KeySetView;
+
+import javax.crypto.SecretKey;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+
+import com.sun.org.apache.xml.internal.security.utils.Base64;
 
 public class Server_Chat {
     public static ConcurrentHashMap<Integer, Socket> clientMap = new ConcurrentHashMap<>();
@@ -61,16 +68,23 @@ public class Server_Chat {
 
 class ServerHandler implements Runnable {
     Socket clientSocket;
-
+    SecretKey secretKey = null;
+    byte[] iv = {(byte) 141,42,58,(byte) 172,66,(byte) 129,49,77,(byte) 218,21,116,26,(byte) 241,44,34,2};
+    cryptotest crypto = new cryptotest();
+    
     ServerHandler(Socket incomingSocket) {
         clientSocket = incomingSocket;
+        
+        //Set encryption keys
+        crypto.setPrivateKey("RSApriv.der");
+		crypto.setPublicKey("RSApub.der");
     }
 
     @Override
     public void run() {
 
         boolean on = true;
-
+        
         // Client now connected
         System.out.println("Client connected.");
         while (on) {
@@ -79,7 +93,19 @@ class ServerHandler implements Runnable {
                 inFromClient = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
                 String message = null;
                 while ((message = inFromClient.readLine()) != null) {
-                    String sendMessage;
+                	byte[] stringToBytes = Base64.decode(message);
+                	if(secretKey == null){
+                    	//Secret Key not established
+                    	byte[] secretKeyBytes = crypto.RSADecrypt(stringToBytes);
+                    	secretKey = new SecretKeySpec(secretKeyBytes, "AES");
+                    	continue;
+                    }
+                	//Decrypt message
+                	byte[] ivBytes = Arrays.copyOfRange(stringToBytes,0,15);
+                	byte[] encryptedMessage = Arrays.copyOfRange(stringToBytes, 15, stringToBytes.length);
+                	byte[] decryptedMessage = crypto.decrypt(encryptedMessage, secretKey, new IvParameterSpec(ivBytes));
+                	String sendMessage = new String(decryptedMessage);
+
                     int id = Integer.parseInt(message.substring(0, 1));
 
                     if (id == 0) {
