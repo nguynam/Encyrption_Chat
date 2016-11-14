@@ -29,7 +29,7 @@ public class Server_Chat {
 	public static ConcurrentHashMap<Integer, Socket> getClientMap() {
 		return clientMap;
 	}
-
+	public static ConcurrentHashMap<Socket, SecretKey> keyMap = new ConcurrentHashMap<>();
 	public static void main(String args[]) throws Exception {
 
 		boolean on = true;
@@ -83,13 +83,15 @@ class ServerHandler implements Runnable {
 
 	public void sendMessage(String toSend, Boolean addEncryption, Socket clientSocket) {
 		try {
-			PrintWriter outToServer = new PrintWriter(clientSocket.getOutputStream());
+			PrintWriter outToServer = new PrintWriter(clientSocket.getOutputStream(), true);
 			if (addEncryption) {
 				SecureRandom r = new SecureRandom();
 				byte ivbytes[] = new byte[16];
 				r.nextBytes(ivbytes);
 				IvParameterSpec iv = new IvParameterSpec(ivbytes);
-				byte[] encryptedMessage = crypto.encrypt(toSend.getBytes(), secretKey, iv);
+				//Retrieve Target Encryption Key
+				SecretKey targetKey = Server_Chat.keyMap.get(clientSocket);
+				byte[] encryptedMessage = crypto.encrypt(toSend.getBytes(), targetKey, iv);
 				byte[] sendingBytes = new byte[encryptedMessage.length + 16];
 				for (int index = 0; index < sendingBytes.length; index++) {
 					// Create new byte[] with first 16 bytes containing the IV,
@@ -131,6 +133,7 @@ class ServerHandler implements Runnable {
 						// Secret Key not established
 						byte[] secretKeyBytes = crypto.RSADecrypt(stringToBytes);
 						secretKey = new SecretKeySpec(secretKeyBytes, "AES");
+						Server_Chat.keyMap.put(clientSocket, secretKey);
 						continue;
 					}
 					// Decrypt message
@@ -139,12 +142,18 @@ class ServerHandler implements Runnable {
 					byte[] decryptedMessage = crypto.decrypt(encryptedMessage, secretKey, new IvParameterSpec(ivBytes));
 					String recievedMessage = new String(decryptedMessage);
 					int id = Integer.parseInt(recievedMessage.substring(0, 1));
-					String sendMessage = recievedMessage.substring(2);
+					String sendMessage = null;
+					if (recievedMessage.length() > 2) {
+						// Have message
+						sendMessage = recievedMessage.substring(2);
+					}
 					if (id == 0) {
 						for (int i = 1; i <= Server_Chat.clientMap.size(); i++) {
-							Socket currentSocket = Server_Chat.clientMap.get(i);
-							//PrintWriter outToClient = new PrintWriter(currentSocket.getOutputStream(), true);
-							sendMessage(sendMessage, true, currentSocket);
+							Socket targetSocket = Server_Chat.clientMap.get(i);
+							// PrintWriter outToClient = new
+							// PrintWriter(currentSocket.getOutputStream(),
+							// true);
+							sendMessage(sendMessage, true, targetSocket);
 						}
 						continue;
 					}
@@ -152,12 +161,13 @@ class ServerHandler implements Runnable {
 						// Send ID's
 						KeySetView<Integer, Socket> keySet = Server_Chat.clientMap.keySet();
 						StringJoiner joiner = new StringJoiner(",");
-						PrintWriter outToClient = new PrintWriter(clientSocket.getOutputStream(), true);
+						// PrintWriter outToClient = new
+						// PrintWriter(clientSocket.getOutputStream(), true);
 						for (Integer name : keySet) {
 							joiner.add(name.toString());
 						}
-						sendMessage("9" + joiner.toString(),true,clientSocket);
-						//outToClient.println("9" + joiner.toString());
+						sendMessage("9" + joiner.toString(), true, clientSocket);
+						// outToClient.println("9" + joiner.toString());
 						continue;
 					}
 					if (id == 8) {
@@ -180,9 +190,8 @@ class ServerHandler implements Runnable {
 						return;
 					}
 
-					// Set target client to send message to
-					Socket targetSocket = Server_Chat.clientMap.get(id);
-					//PrintWriter outToClient = new PrintWriter(targetSocket.getOutputStream(), true);
+					// PrintWriter outToClient = new
+					// PrintWriter(targetSocket.getOutputStream(), true);
 					// Set the sending message and send to client
 
 					if (sendMessage.equals("Kick")) {
@@ -194,8 +203,13 @@ class ServerHandler implements Runnable {
 						Server_Chat.threadMap.remove(id);
 						continue;
 					}
-					//outToClient.println(sendMessage);
-					sendMessage(sendMessage, true, targetSocket);
+					// Set target client to send message to
+					if (Server_Chat.clientMap.containsKey(id)) {
+						Socket targetSocket = Server_Chat.clientMap.get(id);
+						sendMessage(sendMessage, true, targetSocket);
+					} else {
+						sendMessage("Client not found", true, clientSocket);
+					}
 				}
 			} catch (Exception e) {
 			}
