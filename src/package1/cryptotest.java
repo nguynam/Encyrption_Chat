@@ -16,6 +16,7 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import javax.xml.bind.DatatypeConverter;
 
+
 class cryptotest {
 	private PrivateKey privKey;
 	private PublicKey pubKey;
@@ -32,6 +33,7 @@ class cryptotest {
 
 		// Set a new one for every encrypt
 		IvParameterSpec iv = new IvParameterSpec(ivbytes);
+
 		String plaintext = "This is a test string to encrypt";
 		byte ciphertext[] = c.encrypt(plaintext.getBytes(), s, iv);
 		System.out.printf("CipherText: %s%n", DatatypeConverter.printHexBinary(ciphertext));

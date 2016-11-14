@@ -102,8 +102,17 @@ public class GUI extends Application {
 						@Override
 						public void handle(ActionEvent event) {
 							String sending = inputText.getText();
+							byte sendingData[] = new byte[1024];
+							byte sendingText[] = sending.getBytes();
+							byte dataLength[] = new byte[1];
+							Integer length = sendingText.length;
+							dataLength[1] = length.byteValue();
+
+							System.arraycopy(dataLength, 0, sendingData, 0, 1);
+							System.arraycopy(sendingText, 0, sendingData, 1, length);
+
 							String messageSubstring = sending.substring(2, sending.length());
-							client.sendMessage(sending);
+							client.sendMessage(sendingData);
 							String chatBoxMessage = "Sent: " + messageSubstring + "\n";
 							chatBox.appendText(chatBoxMessage);
 							inputText.clear();
