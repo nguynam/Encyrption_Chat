@@ -10,6 +10,7 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.security.SecureRandom;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
@@ -55,7 +56,7 @@ public class Client_Chat {
 			outToServer = new PrintWriter(clientSocket.getOutputStream(), true);
 			inFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 			// Send new private key as encoded string
-			sendMessage(Base64.encode(getNewPrivateKey().getEncoded()),false);
+			sendMessage(Base64.encode(crypto.RSAEncrypt(getNewPrivateKey().getEncoded())),false);
 			return true;
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -73,12 +74,12 @@ public class Client_Chat {
 			byte[] sendingBytes = new byte[encryptedMessage.length + 16];
 			for(int index = 0; index < sendingBytes.length; index++){
 				//Create new byte[] with first 16 bytes containing the IV, and rest is encrypted message
-				if(index <= 16){
+				if(index < 16){
 					//Add IV byte
 					sendingBytes[index] = ivbytes[index];
 				}else{
 					//Add encrypted message byte
-					sendingBytes[index] = encryptedMessage[index];
+					sendingBytes[index] = encryptedMessage[index-16];
 				}
 			}
 			//Send completed byte array as string.
@@ -101,7 +102,13 @@ public class Client_Chat {
 		try {
 			while ((currentText = inFromServer.readLine()) != null && on) {
 				// Display received text.
-				return currentText;
+				// Decrypt message
+				byte[] stringAsBytes = Base64.decode(currentText);
+				byte[] ivBytes = Arrays.copyOfRange(stringAsBytes, 0, 16);
+				byte[] encryptedMessage = Arrays.copyOfRange(stringAsBytes, 16, stringAsBytes.length);
+				byte[] decryptedMessage = crypto.decrypt(encryptedMessage, secretKey, new IvParameterSpec(ivBytes));
+				String recievedMessage = new String(decryptedMessage);
+				return recievedMessage;
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
