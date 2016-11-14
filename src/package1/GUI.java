@@ -32,10 +32,10 @@ public class GUI extends Application {
 			@Override
 			public void handle(WindowEvent event) {
 				//handle gui exit.
-				client.sendMessage("8");
+				client.sendMessage("8",true);
 				client.setOn(false);
 			}
-			
+
 		});
 		final TextField ipField = new TextField();
 		ipField.setPromptText("Server IP:");
@@ -89,7 +89,7 @@ public class GUI extends Application {
 						@Override
 						public void handle(ActionEvent event) {
 							// Send request for ID's
-							client.sendMessage("9");
+							client.sendMessage("9",true);
 						}
 
 					});
@@ -102,17 +102,8 @@ public class GUI extends Application {
 						@Override
 						public void handle(ActionEvent event) {
 							String sending = inputText.getText();
-							byte sendingData[] = new byte[1024];
-							byte sendingText[] = sending.getBytes();
-							byte dataLength[] = new byte[1];
-							Integer length = sendingText.length;
-							dataLength[1] = length.byteValue();
-
-							System.arraycopy(dataLength, 0, sendingData, 0, 1);
-							System.arraycopy(sendingText, 0, sendingData, 1, length);
-
 							String messageSubstring = sending.substring(2, sending.length());
-							client.sendMessage(sendingData);
+							client.sendMessage(sending, true);
 							String chatBoxMessage = "Sent: " + messageSubstring + "\n";
 							chatBox.appendText(chatBoxMessage);
 							inputText.clear();
@@ -135,7 +126,7 @@ public class GUI extends Application {
 					primaryStage.setScene(chatScene);
 					createAsyncListener();
 					//Update Client List on start
-					client.sendMessage("9");
+					client.sendMessage("9", true);
 				}
 			}
 
