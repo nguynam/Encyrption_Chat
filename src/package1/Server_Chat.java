@@ -26,10 +26,8 @@ public class Server_Chat {
 
     public static ConcurrentHashMap<Integer, Thread> threadMap = new ConcurrentHashMap<>();
 
-    public static ConcurrentHashMap<Integer, Socket> getClientMap() {
-        return clientMap;
-    }
     public static ConcurrentHashMap<Socket, SecretKey> keyMap = new ConcurrentHashMap<>();
+
     public static void main(String args[]) throws Exception {
 
         boolean on = true;
@@ -129,6 +127,7 @@ class ServerHandler implements Runnable {
                 String message = null;
                 while ((message = inFromClient.readLine()) != null) {
                     byte[] stringToBytes = Base64.decode(message);
+                    System.out.println(message);
                     if (secretKey == null) {
                         // Secret Key not established
                         byte[] secretKeyBytes = crypto.RSADecrypt(stringToBytes);
@@ -141,6 +140,7 @@ class ServerHandler implements Runnable {
                     byte[] encryptedMessage = Arrays.copyOfRange(stringToBytes, 16, stringToBytes.length);
                     byte[] decryptedMessage = crypto.decrypt(encryptedMessage, secretKey, new IvParameterSpec(ivBytes));
                     String recievedMessage = new String(decryptedMessage);
+                    System.out.println(recievedMessage);
                     int id = Integer.parseInt(recievedMessage.substring(0, 1));
                     String sendMessage = null;
                     if (recievedMessage.length() > 2) {
@@ -150,9 +150,6 @@ class ServerHandler implements Runnable {
                     if (id == 0) {
                         for (int i = 1; i <= Server_Chat.clientMap.size(); i++) {
                             Socket targetSocket = Server_Chat.clientMap.get(i);
-                            // PrintWriter outToClient = new
-                            // PrintWriter(currentSocket.getOutputStream(),
-                            // true);
                             sendMessage(sendMessage, true, targetSocket);
                         }
                         continue;
@@ -161,13 +158,11 @@ class ServerHandler implements Runnable {
                         // Send ID's
                         KeySetView<Integer, Socket> keySet = Server_Chat.clientMap.keySet();
                         StringJoiner joiner = new StringJoiner(",");
-                        // PrintWriter outToClient = new
-                        // PrintWriter(clientSocket.getOutputStream(), true);
+
                         for (Integer name : keySet) {
                             joiner.add(name.toString());
                         }
                         sendMessage("9" + joiner.toString(), true, clientSocket);
-                        // outToClient.println("9" + joiner.toString());
                         continue;
                     }
                     if (id == 8) {
@@ -181,11 +176,9 @@ class ServerHandler implements Runnable {
                             }
                         }
                         System.out.println("Client " + targetId.toString() + " Disconnected.");
-                        // Thread closingThread =
-                        // Server_Chat.threadMap.get(targetId);
+
                         Server_Chat.clientMap.remove(targetId);
                         Server_Chat.threadMap.remove(targetId);
-                        // Server_Chat.clientMap.get(targetId).close();
                         Thread.currentThread().interrupt();
                         return;
                     }
@@ -197,8 +190,10 @@ class ServerHandler implements Runnable {
                     if (sendMessage.equals("Kick")) {
                         System.out.println("Client " + id + " Disconnected.");
                         Thread closingThread = Server_Chat.threadMap.get(id);
+                        Socket closingSocket = Server_Chat.clientMap.get(id);
                         Server_Chat.clientMap.get(id).close();
                         closingThread.interrupt();
+                        closingSocket.close();
                         Server_Chat.clientMap.remove(id);
                         Server_Chat.threadMap.remove(id);
                         continue;
